@@ -32,9 +32,9 @@ try {
 }
 
 const perms = (settings && settings.permissions) || {};
-const allow = perms.allow || [];
-const ask = perms.ask || [];
-const deny = perms.deny || [];
+const allow = (perms.allow || []).map(String);
+const ask = (perms.ask || []).map(String);
+const deny = (perms.deny || []).map(String);
 
 // CRITICAL: patron destructivo en allow
 const destructive = [

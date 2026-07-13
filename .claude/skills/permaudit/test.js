@@ -81,6 +81,16 @@ try {
     );
   }
 
+  // 4. entrada no-string en allow (ej. numero por error de tipeo en settings.json)
+  //    no debe crashear audit.js con TypeError; debe tratarse como texto inofensivo.
+  const nonString = makeFixture({ permissions: { allow: [123], ask: [], deny: [] } });
+  fixtures.push(nonString);
+  {
+    const { status, out } = runAudit(nonString);
+    assert.notStrictEqual(status, null, 'entrada no-string: audit.js no debe crashear (status null = proceso murio)');
+    assert.ok(Array.isArray(out.findings), 'entrada no-string: sigue devolviendo JSON valido con findings');
+  }
+
   console.log('OK');
 } finally {
   for (const dir of fixtures) {
