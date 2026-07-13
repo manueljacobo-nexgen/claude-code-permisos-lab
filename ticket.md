@@ -11,3 +11,5 @@ Estaba revisando `export.js` (rama `chore/multi-clauding-ticket`, basada en `fea
 3. Corre `node .claude/skills/permaudit/export.test.js` completo y confirma que sigue en `OK`.
 4. Comitea tu cambio con su propio mensaje (no lo mezcles con este commit de ticket.md), para que quede clara la evidencia de que dos instancias distintas tocaron esta rama.
 5. Actualiza esta seccion de `ticket.md` con una nota de "cerrado por instancia B: <resumen>".
+
+Cerrado por instancia B: verificado que `--min-severity=critical` (minuscula) da salida identica a `--min-severity=CRITICAL`, agregado caso 8 a `export.test.js`, suite completa en OK.
