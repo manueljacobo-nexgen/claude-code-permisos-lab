@@ -1,0 +1,8 @@
+{
+  "name": "claude-code-permisos-lab",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "echo \"tests ok\""
+  }
+}

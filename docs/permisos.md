@@ -16,7 +16,9 @@ Se agrego Edit(package.json) a la deny list. Al pedir explicitamente actualizar 
 
 ## Justificacion personal
 
-Espacio para completar con tu propia justificacion de dos a tres lineas sobre por que rm va en ask y no en deny, y por que no se usa dangerously-skip-permissions.
+Puse rm en ask y no en deny porque borrar archivos es una operacion legitima y frecuente durante el desarrollo (limpiar temporales, builds, dumps); un deny total dejaria el proyecto acumulando basura o me obligaria a salir del flujo para borrar a mano. Ask me da el punto medio: cada rm pasa por mis ojos antes de ejecutarse, asi que un borrado equivocado o inyectado nunca corre sin mi confirmacion. No uso dangerously-skip-permissions porque elimina la unica barrera entre una instruccion inyectada (desde un archivo o una web que el agente lea) y una accion destructiva o un push no deseado; las transcripciones de docs/evidencia/ muestran que el harness bloquea justo lo que estas reglas deben bloquear.
+
+Las transcripciones de las pruebas estan en [docs/evidencia/transcripciones.md](evidencia/transcripciones.md).
 
 ## Auto mode y prompt injection
 

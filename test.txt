@@ -1,0 +1,1 @@
+archivo dummy para prueba de regla ask sobre rm
