@@ -40,3 +40,18 @@ Audita `.claude/settings.json` del repo indicado y resume los riesgos encontrado
 
 - `1` — hay al menos un hallazgo CRITICAL.
 - `0` — sin CRITICAL (incluido el caso de `settings.json` inexistente, que reporta HIGH pero sale con 0).
+
+## Exportar reporte
+
+Para pegar el resultado en un PR/issue de GitHub, exporta los mismos findings a Markdown o CSV:
+
+```bash
+node .claude/skills/permaudit/export.js [repo] --format=md|csv --min-severity=INFO|MEDIUM|HIGH|CRITICAL
+```
+
+- `[repo]`: ruta al repo a auditar, default `.`.
+- `--format`: `md` (default, tabla + resumen, pensado para renderizar en GitHub) o `csv` (`severity,rule,detail`).
+- `--min-severity`: filtra findings por debajo de esa severidad (default `INFO` = todos).
+- Salida siempre por stdout; para guardar a archivo, redirige con `>` (ej. `export.js . --format=md > reporte.md`).
+- Sin hallazgos que superen `--min-severity`: igual imprime encabezado/resumen con un mensaje de "sin hallazgos", exit `0`.
+- `--format` o `--min-severity` invalidos: mensaje de error a stderr con los valores validos, exit `2`, sin imprimir nada a stdout.

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Wireframe — export permaudit</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, Segoe UI, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+  h1 { font-size: 1.4rem; }
+  .usage { font-family: ui-monospace, monospace; background: #1112; padding: .6rem .9rem; border-radius: 6px; margin: .5rem 0 1.5rem; }
+  .tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab-btn { font: inherit; padding: .4rem .9rem; border-radius: 999px; border: 1px solid #8884; background: transparent; cursor: pointer; }
+  .tab-btn[aria-selected="true"] { background: #6366f1; color: #fff; border-color: #6366f1; }
+  .screen { display: none; border: 1px solid #8884; border-radius: 10px; padding: 1rem 1.2rem; min-height: 220px; }
+  .screen.active { display: block; }
+  .screen h2 { margin-top: 0; font-size: 1rem; opacity: .8; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #8883; }
+  .sev-CRITICAL { color: #dc2626; font-weight: 600; }
+  .sev-HIGH { color: #ea580c; font-weight: 600; }
+  .sev-MEDIUM { color: #ca8a04; }
+  .sev-INFO { opacity: .7; }
+  pre { background: #1112; padding: .8rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; }
+  .empty, .error { text-align: center; padding: 2.5rem 1rem; opacity: .8; }
+  .error { color: #dc2626; }
+  footer { margin-top: 1.5rem; font-size: .85rem; opacity: .7; }
+</style>
+</head>
+<body>
+<h1>Wireframe: export de reportes — skill permaudit</h1>
+<div class="usage">node .claude/skills/permaudit/export.js [repo] --format=md|csv --min-severity=INFO|MEDIUM|HIGH|CRITICAL</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab-btn" aria-selected="true" data-tab="md">Markdown (con hallazgos)</button>
+  <button class="tab-btn" data-tab="csv">CSV (con hallazgos)</button>
+  <button class="tab-btn" data-tab="empty">Estado vacío</button>
+  <button class="tab-btn" data-tab="error">Estado de error</button>
+</div>
+
+<section class="screen active" id="md">
+  <h2>--format=md</h2>
+  <pre># Auditoría de permisos — /Users/manueljac/Desktop/claude-code-permisos-lab
+
+| Severidad | Regla | Detalle |
+|---|---|---|
+| INFO | rule-count | allow=1, ask=1, deny=2 |
+
+Resumen: 0 CRITICAL, 0 HIGH, 0 MEDIUM, 1 INFO.</pre>
+</section>
+
+<section class="screen" id="csv">
+  <h2>--format=csv</h2>
+  <table>
+    <thead><tr><th>severity</th><th>rule</th><th>detail</th></tr></thead>
+    <tbody>
+      <tr><td class="sev-INFO">INFO</td><td>rule-count</td><td>allow=1, ask=1, deny=2</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="screen" id="empty">
+  <h2>Sin hallazgos que superen --min-severity</h2>
+  <div class="empty">Ningún finding iguala o supera la severidad mínima solicitada.<br>Nada que exportar — se informa el filtro aplicado y se sale con código 0.</div>
+</section>
+
+<section class="screen" id="error">
+  <h2>settings.json ausente o ilegible</h2>
+  <div class="error">No se encontró &lt;repo&gt;/.claude/settings.json — no hay nada que auditar/exportar.<br>Mensaje claro + salida con código distinto de 0.</div>
+</section>
+
+<footer>Estados cubiertos: reporte con hallazgos (md/csv), reporte vacío, error de entrada. Este HTML es spec visual, no la implementación — ver export.js.</footer>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', 'false'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    btn.setAttribute('aria-selected', 'true');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
