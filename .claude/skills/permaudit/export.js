@@ -8,7 +8,7 @@ const { spawnSync } = require('child_process');
 // ponytail: duplica el orden de severidad de audit.js; si audit.js agrega una
 // severidad nueva, actualizar tambien este array o quedara fuera del filtro.
 const SEVERITY_ORDER = ['INFO', 'MEDIUM', 'HIGH', 'CRITICAL'];
-const FORMATS = ['md', 'csv'];
+const FORMATS = ['md', 'csv', 'json'];
 
 const positional = [];
 let format = 'md';
@@ -71,6 +71,12 @@ function toCsv() {
   const lines = ['severity,rule,detail'];
   for (const f of filtered) lines.push([csvField(f.severity), csvField(f.rule), csvField(f.detail)].join(','));
   return lines.join('\n') + '\n';
+}
+
+if (format === 'json') {
+  // passthrough crudo del stdout de audit.js: mas barato, pero ignora --min-severity.
+  process.stdout.write(res.stdout);
+  process.exit(0);
 }
 
 process.stdout.write(format === 'csv' ? toCsv() : toMarkdown());
