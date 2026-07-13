@@ -97,6 +97,14 @@ try {
     assert.ok(res.stdout.includes('0 MEDIUM, 0 INFO'), 'resumen filtrado: conteo de MEDIUM/INFO en 0, no el total real del repo');
   }
 
+  // 8. --min-severity=critical en minuscula filtra igual que CRITICAL (se normaliza con toUpperCase).
+  {
+    const lower = runExport([rmAllow, '--format=md', '--min-severity=critical']);
+    const upper = runExport([rmAllow, '--format=md', '--min-severity=CRITICAL']);
+    assert.strictEqual(lower.status, 0, 'min-severity minuscula: exit 0');
+    assert.strictEqual(lower.stdout, upper.stdout, 'min-severity minuscula: salida identica a mayuscula');
+  }
+
   console.log('OK');
 } finally {
   for (const dir of fixtures) fs.rmSync(dir, { recursive: true, force: true });
