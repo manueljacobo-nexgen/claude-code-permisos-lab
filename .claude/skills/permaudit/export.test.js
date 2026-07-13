@@ -65,6 +65,38 @@ try {
     assert.ok(res.stderr.includes('--format invalido'), 'formato invalido: mensaje en stderr');
   }
 
+  // 5. detail con pipe (regla con "|") no rompe la tabla markdown.
+  const pipeRule = makeFixture({ permissions: { allow: ['Bash(rm -rf * | tee log)'], ask: [], deny: [] } });
+  fixtures.push(pipeRule);
+  {
+    const res = runExport([pipeRule, '--format=md', '--min-severity=INFO']);
+    assert.strictEqual(res.status, 0, 'detail con pipe: exit 0');
+    assert.ok(res.stdout.includes('\\|'), 'detail con pipe: se escapa como \\|');
+    const rows = res.stdout.split('\n').filter((l) => l.startsWith('| CRITICAL'));
+    assert.strictEqual(rows.length, 1, 'detail con pipe: sigue siendo una sola fila de tabla');
+  }
+
+  // 6. detail con newline embebido no rompe el registro CSV.
+  const newlineRule = makeFixture({ permissions: { allow: ['Bash(rm -rf *)\nBash(sudo x)'], ask: [], deny: [] } });
+  fixtures.push(newlineRule);
+  {
+    const res = runExport([newlineRule, '--format=csv', '--min-severity=INFO']);
+    assert.strictEqual(res.status, 0, 'detail con newline: exit 0');
+    const dataLines = res.stdout.trim().split('\n');
+    assert.strictEqual(dataLines[0], 'severity,rule,detail', 'detail con newline: header intacto');
+    assert.ok(dataLines[1].startsWith('CRITICAL,destructive-allow,"'), 'detail con newline: campo quedo entre comillas');
+  }
+
+  // 7. Resumen refleja solo lo filtrado, no los totales sin filtrar.
+  const mixed = makeFixture({ permissions: { allow: ['Bash(sudo x)'], ask: [], deny: [] } });
+  fixtures.push(mixed);
+  {
+    const res = runExport([mixed, '--format=md', '--min-severity=HIGH']);
+    assert.strictEqual(res.status, 0, 'resumen filtrado: exit 0');
+    assert.ok(!res.stdout.includes('| MEDIUM |'), 'resumen filtrado: tabla no incluye MEDIUM (filtrado por HIGH)');
+    assert.ok(res.stdout.includes('0 MEDIUM, 0 INFO'), 'resumen filtrado: conteo de MEDIUM/INFO en 0, no el total real del repo');
+  }
+
   console.log('OK');
 } finally {
   for (const dir of fixtures) fs.rmSync(dir, { recursive: true, force: true });

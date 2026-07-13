@@ -5,6 +5,8 @@
 const path = require('path');
 const { spawnSync } = require('child_process');
 
+// ponytail: duplica el orden de severidad de audit.js; si audit.js agrega una
+// severidad nueva, actualizar tambien este array o quedara fuera del filtro.
 const SEVERITY_ORDER = ['INFO', 'MEDIUM', 'HIGH', 'CRITICAL'];
 const FORMATS = ['md', 'csv'];
 
@@ -32,9 +34,10 @@ const auditPath = path.join(__dirname, 'audit.js');
 const res = spawnSync(process.execPath, [auditPath, repo], { encoding: 'utf8' });
 let parsed;
 try {
+  if (!res.stdout) throw new Error(res.error ? res.error.message : `audit.js sin salida (exit ${res.status})`);
   parsed = JSON.parse(res.stdout);
 } catch (e) {
-  process.stderr.write(`audit.js no devolvio JSON valido: ${e.message}\n${res.stderr}\n`);
+  process.stderr.write(`audit.js no devolvio JSON valido: ${e.message}\n${res.stderr || ''}\n`);
   process.exit(2);
 }
 
@@ -43,7 +46,11 @@ const filtered = parsed.findings.filter((f) => SEVERITY_ORDER.indexOf(f.severity
 
 function csvField(value) {
   const s = String(value);
-  return /[",]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  return /["\n,]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function mdCell(value) {
+  return String(value).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
 
 function toMarkdown() {
@@ -52,10 +59,11 @@ function toMarkdown() {
     lines.push(`Sin hallazgos que superen la severidad mínima solicitada (${minSeverity}).`);
   } else {
     lines.push('| Severidad | Regla | Detalle |', '|---|---|---|');
-    for (const f of filtered) lines.push(`| ${f.severity} | ${f.rule} | ${f.detail} |`);
+    for (const f of filtered) lines.push(`| ${mdCell(f.severity)} | ${mdCell(f.rule)} | ${mdCell(f.detail)} |`);
   }
-  const s = parsed.summary;
-  lines.push('', `Resumen: ${s.critical} CRITICAL, ${s.high} HIGH, ${s.medium} MEDIUM, ${s.info} INFO.`);
+  const s = { critical: 0, high: 0, medium: 0, info: 0 };
+  for (const f of filtered) s[f.severity.toLowerCase()]++;
+  lines.push('', `Resumen (filtrado por --min-severity=${minSeverity}): ${s.critical} CRITICAL, ${s.high} HIGH, ${s.medium} MEDIUM, ${s.info} INFO.`);
   return lines.join('\n') + '\n';
 }
 
