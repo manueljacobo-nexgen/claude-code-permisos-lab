@@ -55,3 +55,4 @@ node .claude/skills/permaudit/export.js [repo] --format=md|csv --min-severity=IN
 - Salida siempre por stdout; para guardar a archivo, redirige con `>` (ej. `export.js . --format=md > reporte.md`).
 - Sin hallazgos que superen `--min-severity`: igual imprime encabezado/resumen con un mensaje de "sin hallazgos", exit `0`.
 - `--format` o `--min-severity` invalidos: mensaje de error a stderr con los valores validos, exit `2`, sin imprimir nada a stdout.
+- `export.js` no tiene `--format=json`: `audit.js` ya imprime JSON directamente (`node .claude/skills/permaudit/audit.js [repo]`). Duplicarlo en `export.js` no agrega nada — usa `audit.js` para JSON y `export.js` solo para md/csv.
