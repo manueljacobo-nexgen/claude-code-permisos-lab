@@ -21,7 +21,11 @@ Pendiente real: como exponer JSON desde `export.js` (hasta ahora solo md/csv). T
 Decision documentada en el comentario de PR#3.
 
 ### (c) PR con CI — [PR#6](https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/pull/6)
-Este repo no tenia CI. Se agrego `.github/workflows/test.yml`. Al correr, quedo **rojo genuino** (no fabricado): el job muere en ~3-4s con `steps: []` y sin logs — patron de runner que nunca arranca (limite de minutos/cola en cuenta personal), no un bug de codigo (`node test.js` local pasa OK). Documentado en el PR. El autofix via Claude GitHub App **no se pudo demostrar**: la app no esta instalada (bloqueado en paso 1). Queda pendiente para Manuel: revisar Settings → Actions/billing e instalar la app.
+Este repo no tenia CI. Se agrego `.github/workflows/test.yml`. Al correr, quedo **rojo genuino** (no fabricado): el job muere en ~3-4s sin ejecutar steps ni generar logs — no un bug de codigo (`node test.js` local pasa OK).
+
+Diagnostico completo (confirmado, no especulado): en vez de instalar la GitHub App via marketplace (ver hallazgos de seguridad mas abajo), se armo el flujo con `claude-code-action` + `CLAUDE_CODE_OAUTH_TOKEN` (generado con `claude setup-token`, valido para suscripcion Pro/Max/Team, sin necesitar `ANTHROPIC_API_KEY` de pago por API) en [PR#8](https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/pull/8). Se comento `@claude` en PR#6 para probarlo end-to-end: el trigger disparo correctamente (el `if` con `author_association == 'OWNER'` funciono), pero el job murio igual. La causa real, confirmada en Settings → Billing → Payment information: **`Invalid payment method - authorization hold failed`** — la cuenta esta bloqueada para cualquier Actions run porque el hold de autorizacion de la tarjeta fallo, no por limite de minutos (0/2000 usados, \$0 gastado) ni por configuracion del repo. Decision: se deja el flujo (`claude.yml` + secret) armado y funcional, sin seguir debuggeando — arreglar el metodo de pago es una accion sobre datos financieros que le corresponde a Manuel, no algo que el agente deba tocar.
+
+Nota aparte: el security review automatico sobre el push de `claude.yml` encontro 3 hallazgos reales antes de mergear — el workflow, tal como se escribio primero, dejaba que **cualquier usuario de GitHub** (el repo es publico) disparara un job con permisos de escritura con solo comentar "@claude", ademas de referenciar las actions por tag movible en vez de SHA fijo. Corregido (`author_association == 'OWNER'` + SHAs pinneados) antes de mergear a main.
 
 ## Multi-Clauding (paso 4)
 
@@ -61,4 +65,5 @@ Ningun caso esta semana: no hizo falta interrumpir ni retroceder una sesion. Lec
 | Decision B (descartada) | https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/pull/4 |
 | Decision C (descartada) | https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/pull/5 |
 | CI (rojo, infra) | https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/pull/6 |
+| Workflow @claude (con fixes de seguridad) | https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/pull/8 |
 | Multi-Clauding | https://github.com/manueljacobo-nexgen/claude-code-permisos-lab/tree/chore/multi-clauding-ticket |
