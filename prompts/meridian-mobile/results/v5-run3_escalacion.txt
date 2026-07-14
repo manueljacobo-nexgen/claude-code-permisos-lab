@@ -1,0 +1,5 @@
+Confirmed billing error, two tries already failed. Escalating you now to human agent, no more bot loop.
+
+Transferring to live billing specialist for double charge ($40 x2 same month). They'll fix charge and check refund/credit on account.
+
+Thanks for being a Meridian Mobile subscriber.

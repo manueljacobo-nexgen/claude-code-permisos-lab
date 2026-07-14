@@ -1,0 +1,17 @@
+Hey there! Great question, and I'm happy to walk you through the math.
+
+Here's how the proration works for switching mid-cycle:
+
+- **Meridian Basic**: $40/30 days = $1.333/day
+- **Meridian Plus**: $60/30 days = $2.00/day
+- **Difference**: $0.667/day extra for Plus
+
+Since you're on day 16 of a 30-day cycle, you have **15 days remaining** in this cycle.
+
+**15 days × $0.667/day extra = $10.00**
+
+So you'll be charged an additional **$10.00** for the rest of this billing cycle to cover the upgrade to Meridian Plus. Starting next cycle, you'll just be billed the normal $60/month rate.
+
+For your exact current balance or usage details, I'd recommend checking the MyMeridian app or website, since that'll have the most up-to-date numbers for your account.
+
+Thanks so much for being a Meridian Mobile subscriber — enjoy that extra data on Plus! 😊

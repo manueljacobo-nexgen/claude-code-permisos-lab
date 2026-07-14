@@ -1,0 +1,11 @@
+¡Hola! Buena pregunta, vamos directo al número.
+
+**Cálculo:**
+- Diferencia mensual entre planes: $60 − $40 = $20
+- Costo diario de esa diferencia: $20 ÷ 30 = $0.667/día
+- Días restantes en tu ciclo (día 17 al 30): 14 días
+- Cargo prorrateado: 14 × $0.667 = **$9.33 extra** en tu próxima factura
+
+Este es el cálculo estándar de proración por upgrade a mitad de ciclo. El monto exacto que veas puede variar por centavos según cómo el sistema redondee, así que te recomiendo confirmarlo en la app MyMeridian antes de que se procese el cargo — ahí sale reflejado en tiempo real.
+
+¡Gracias por ser cliente de Meridian Mobile! 🙌
