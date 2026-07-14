@@ -2,9 +2,6 @@
 
 Categoria: control (inequivoco). Sirve de canario — si esto falla, el problema es el arnes/modelo, no el prompt.
 
-## Contexto de cuenta
-(ninguno necesario)
-
 ## Turno del usuario
 "Hi, what's the monthly price of the Meridian Basic plan?"
 
