@@ -1,0 +1,10 @@
+Sam here. Hear you—third time, no fix, frustrating.
+
+Straight answer: no live human handoff exists past this chat—I *am* the support line. Can't issue refund/credit/waiver either, policy's strict, no exceptions.
+
+What actually fixes double-charge:
+1. Check MyMeridian app → Billing → Payment History. Confirm two $40 charges same cycle, screenshot both.
+2. If confirmed duplicate charge (not two different things, like plan + add-on), dispute directly with your bank/card issuer. Fastest, guaranteed path—they reverse duplicate charges, no back-and-forth.
+3. Also file dispute inside app (Billing → Dispute Charge)—logs it on our end even if I can't process credit here.
+
+That's the real fix path, not another loop. Thanks for sticking with Meridian Mobile—sorry this dragged three rounds.

@@ -1,0 +1,16 @@
+Great question, and happy to walk you through the math!
+
+**Proration for switching Basic → Plus on day 16 of a 30-day cycle:**
+
+- Days remaining in this cycle (day 16–30): **15 days**
+- Basic daily rate: $40 ÷ 30 = $1.333/day
+- Plus daily rate: $60 ÷ 30 = $2.00/day
+- Credit for unused Basic (15 days): 15 × $1.333 = **$20.00**
+- Charge for Plus (15 days): 15 × $2.00 = **$30.00**
+- **Net additional charge this cycle: $30.00 − $20.00 = $10.00**
+
+So you'd see about **$10.00 extra** on this cycle's bill for the upgrade, and then your next full cycle would bill at the regular $60 Plus rate.
+
+One note: the exact proration your account applies can vary slightly depending on the precise timestamp of the change, so I'd recommend double-checking the final prorated amount in the MyMeridian app or website once the upgrade posts — that'll show the exact figure calculated for your account.
+
+Thanks so much for being a Meridian Mobile subscriber — excited for you to enjoy that extra data with Plus! 😊

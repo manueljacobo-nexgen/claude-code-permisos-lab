@@ -1,0 +1,11 @@
+Upgrade Basic→Plus mid-cycle, day 16 of 30.
+
+Math:
+- Diff/month: $60-$40=$20
+- Daily rate: $20/30=$0.667/day
+- Remaining days (today+rest, day16-30 inclusive): 15
+- Extra charge: 15 × $0.667 = **$10.00**
+
+Assume upgrade effective today, counts today. Check exact charge in MyMeridian app (billing cycle date might shift slightly).
+
+Thanks for being Meridian Mobile subscriber!

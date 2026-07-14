@@ -1,0 +1,16 @@
+Here's the breakdown for your mid-cycle upgrade:
+
+**Your cycle:** Day 1–30, today is day 16, so you have **15 days remaining** (16–30).
+
+**Proration math:**
+- Daily rate, Meridian Basic: $40 ÷ 30 = $1.33/day
+- Daily rate, Meridian Plus: $60 ÷ 30 = $2.00/day
+- Remaining days already covered by Basic: 15 × $1.33 = **$20.00**
+- Cost of those same 15 days at Plus rate: 15 × $2.00 = **$30.00**
+- **Extra charge = $30.00 − $20.00 = $10.00**
+
+So you'll be charged **$10.00** for the rest of this cycle to move from Basic to Plus. Starting next cycle, you'll simply pay the full $60/month rate.
+
+For the exact amount reflected on your account (in case of rounding or timing differences), please check the MyMeridian app or website — that'll always show the most accurate, up-to-date figure.
+
+Thank you for being a Meridian Mobile subscriber!
