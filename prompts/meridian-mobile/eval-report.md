@@ -102,3 +102,9 @@ Solo higiene (rol/boilerplate/estructura) ya subio el total de 53% a 60% — pri
 *V1 escalacion: pass fragil/no garantizado por el prompt, ver nota en la seccion V1 arriba.
 
 **Lectura final:** cada anti-patron se resolvio en la fase que le correspondia, no antes — `no-retencion` no se movio hasta V3, `edge-aritmetica` no se estabilizo (3/3) hasta V4, y `politica`/`escalacion` no se movieron hasta V5. Las caidas intermedias en el total (V2 en particular) fueron varianza de casos no tocados todavia, no regresiones causadas por los cambios de esa fase — documentado en cada entrada para que nadie revierta el cambio equivocado.
+
+## Correccion post-hoc: bug real en el runner (`--tools ""`)
+
+En revision se encontro que `run-eval.sh` usaba `--tools ""` para bloquear tools en la condicion "sin herramienta" (V0-V3). La ayuda del CLI documenta que `""` desactiva todas las tools, pero **no es cierto en la practica**: se probo directamente (pidiendole a un modelo de prueba que usara Bash con `--tools ""` activo) y el modelo igual ejecuto el comando. `--disallowedTools "Bash,Edit,Write,Read,WebFetch,WebSearch"` si bloquea de verdad (mismo test de control, esta vez rechazado correctamente). Se corrigio el runner para usar `--disallowedTools`/`--allowedTools` en vez de `--tools`.
+
+**Impacto en los resultados ya documentados: ninguno.** Se re-corrio `edge-aritmetica` x3 con v0-prompt.md y el flag corregido: 3/3 correcto ($10.00), consistente con que en NINGUNA de las respuestas de V0-V3 aparece evidencia de invocacion de tool (son prosa de calculo mental, no bloques de tool-use) — el modelo nunca intento usar Bash en esos runs con o sin el bug, porque nada en los prompts v0-v3 le pedia usar una herramienta (esa instruccion recien aparece en V4). El bug existia en el harness pero no cambio el comportamiento observado ni invalida las conclusiones de V0-V4.

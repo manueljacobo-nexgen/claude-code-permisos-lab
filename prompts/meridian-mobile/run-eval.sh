@@ -2,9 +2,15 @@
 # Runner de evals: corre un prompt version (system prompt) contra un caso eval real,
 # usando el CLI de Claude Code en modo no interactivo como arnes del modelo bajo prueba.
 #
-# Uso: ./run-eval.sh <prompt-file> <eval-file> <run-label> [lista-de-tools]
-# Sin 4to argumento: el modelo no tiene tools (chatbot puro). Con 4to argumento
-# (ej. "Bash"): le da esas tools reales — usado en la eval post-fix de aritmetica.
+# Uso: ./run-eval.sh <prompt-file> <eval-file> <run-label> [lista-de-tools-permitidas]
+# Sin 4to argumento: el modelo NO tiene tools (chatbot puro, se bloquean explicitamente
+# via --disallowedTools). Con 4to argumento (ej. "Bash"): le da esa tool real
+# — usado en la eval post-fix de aritmetica.
+#
+# NOTA (bug real encontrado en revision): `--tools ""` NO desactiva las tools pese
+# a que la ayuda del CLI dice que si (probado: el modelo igual invoco Bash con
+# `--tools ""`). Se usa `--disallowedTools` en su lugar, que si bloquea de verdad
+# (verificado con un caso de control que pide explicitamente usar Bash).
 #
 # Ejemplo:
 #   ./run-eval.sh v0-prompt.md evals/control.md v0-run1
@@ -14,7 +20,8 @@ set -euo pipefail
 PROMPT_FILE="$1"
 EVAL_FILE="$2"
 RUN_LABEL="$3"
-TOOLS="${4:-}"  # vacio = sin tools (--tools "")
+TOOLS="${4:-}"  # vacio = sin tools (--disallowedTools con la lista de abajo)
+NO_TOOLS_LIST="Bash,Edit,Write,Read,WebFetch,WebSearch"
 
 if [ ! -f "$PROMPT_FILE" ]; then echo "no existe prompt: $PROMPT_FILE" >&2; exit 1; fi
 if [ ! -f "$EVAL_FILE" ]; then echo "no existe eval: $EVAL_FILE" >&2; exit 1; fi
@@ -42,9 +49,9 @@ fi
 
 SYSTEM_PROMPT="$(cat "$PROMPT_FILE")"
 
-TOOLS_FLAG=(--tools "")
+TOOLS_FLAG=(--disallowedTools "$NO_TOOLS_LIST")
 if [ -n "$TOOLS" ]; then
-  TOOLS_FLAG=(--tools "$TOOLS")
+  TOOLS_FLAG=(--allowedTools "$TOOLS")
 fi
 
 claude -p "$FULL_USER_MSG" \
