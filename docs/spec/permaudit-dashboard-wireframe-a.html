@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>PermAudit Dashboard — Wireframe A (dos columnas)</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #f6f7f9; color: #222; }
+    header { background: #111; color: #fff; padding: 1rem 2rem; }
+    .summary { display: flex; gap: 1rem; padding: 1rem 2rem; }
+    .card { background: #fff; border-radius: 6px; padding: 1rem; flex: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .main { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; padding: 0 2rem 2rem; }
+    .panel { background: #fff; border-radius: 6px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    textarea { width: 100%; height: 220px; font-family: monospace; font-size: 0.9rem; }
+    button { margin-top: 0.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.6rem; border-bottom: 1px solid #eee; }
+    .CRITICAL { color: #b00020; background: #ffebee; }
+    .HIGH { color: #c65100; background: #fff3e0; }
+    .MEDIUM { color: #f9a825; background: #fffde7; }
+    .INFO { color: #2e7d32; background: #e8f5e9; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PermAudit Dashboard</h1>
+    <p>Wireframe A: editor a la izquierda, findings a la derecha, resumen arriba.</p>
+  </header>
+
+  <section class="summary" id="summary">
+    <div class="card">CRITICAL: <strong id="c">0</strong></div>
+    <div class="card">HIGH: <strong id="h">0</strong></div>
+    <div class="card">MEDIUM: <strong id="m">0</strong></div>
+    <div class="card">INFO: <strong id="i">0</strong></div>
+    <div class="card">Total: <strong id="t">0</strong></div>
+  </section>
+
+  <main class="main">
+    <section class="panel">
+      <h2>Configuración</h2>
+      <textarea id="settings-input">{
+  "allow": ["Bash(npm run test)"],
+  "ask": ["Bash(rm *)"],
+  "deny": ["Bash(git push *)", "Edit(package.json)"]
+}</textarea>
+      <button id="audit-btn">Auditar</button>
+      <p><small>Pega aquí el contenido de <code>.claude/settings.json</code>.</small></p>
+    </section>
+
+    <section class="panel">
+      <h2>Findings</h2>
+      <ul id="findings"></ul>
+    </section>
+  </main>
+
+  <script type="module">
+    import { audit } from '../../app/audit.js';
+
+    const input = document.getElementById('settings-input');
+    const btn = document.getElementById('audit-btn');
+    const findingsEl = document.getElementById('findings');
+
+    function render() {
+      let settings = null;
+      try {
+        settings = JSON.parse(input.value || '{}');
+      } catch (e) {
+        findingsEl.innerHTML = `<li class="CRITICAL">JSON inválido: ${e.message}</li>`;
+        return;
+      }
+      const result = audit(settings);
+      document.getElementById('c').textContent = result.summary.CRITICAL;
+      document.getElementById('h').textContent = result.summary.HIGH;
+      document.getElementById('m').textContent = result.summary.MEDIUM;
+      document.getElementById('i').textContent = result.summary.INFO;
+      document.getElementById('t').textContent = result.findings.length;
+      findingsEl.innerHTML = result.findings.map(f =>
+        `<li class="${f.severity}"><strong>[${f.severity}]</strong> ${f.rule}: ${f.detail}</li>`
+      ).join('');
+    }
+
+    btn.addEventListener('click', render);
+    render();
+  </script>
+</body>
+</html>

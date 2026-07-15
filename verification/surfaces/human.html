@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>PermAudit — Superficie humana</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #f6f7f9; color: #222; }
+    header { background: #1a237e; color: #fff; padding: 1rem 2rem; }
+    main { padding: 1.5rem 2rem; max-width: 900px; margin: 0 auto; }
+    .probe { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .probe.pass { border-left: 5px solid #2e7d32; }
+    .probe.fail { border-left: 5px solid #b00020; }
+    button { padding: 0.5rem 1rem; cursor: pointer; }
+    #run-all { margin-bottom: 1rem; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; }
+    .meta { color: #666; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PermAudit — Superficie humana</h1>
+    <p>Ejecuta cada sonda una a una y revisa que el resultado coincida con lo esperado.</p>
+  </header>
+  <main>
+    <button id="run-all">Ejecutar todas las sondas</button>
+    <div id="results"></div>
+  </main>
+
+  <script src="../../app/audit.js"></script>
+  <script src="../fixtures.js"></script>
+  <script src="../probes.js"></script>
+  <script>
+    const resultsEl = document.getElementById('results');
+
+    function auditForFixture(raw) {
+      if (typeof raw === 'string') {
+        return {
+          findings: [{ severity: 'CRITICAL', rule: 'parse-error', detail: `JSON invalido: ${raw}` }],
+          summary: { CRITICAL: 1, HIGH: 0, MEDIUM: 0, INFO: 0 },
+          hasSettings: false,
+          ruleCount: 0,
+          hasConflict: false
+        };
+      }
+      return PermAudit.audit(raw);
+    }
+
+    function runProbe(probe) {
+      const raw = PermAuditFixtures[probe.fixture];
+      const result = auditForFixture(raw);
+      const pass =
+        JSON.stringify(result.summary) === JSON.stringify(probe.expected.summary) &&
+        result.findings.length === probe.expected.totals.findings &&
+        result.ruleCount === probe.expected.totals.rules &&
+        result.hasSettings === probe.expected.flags.hasSettings &&
+        result.hasConflict === probe.expected.flags.hasConflict;
+      return { probe, result, pass };
+    }
+
+    function renderResult(r) {
+      const div = document.createElement('div');
+      div.className = `probe ${r.pass ? 'pass' : 'fail'}`;
+      div.innerHTML = `
+        <h3>${r.pass ? '✓' : '✗'} ${r.probe.name}</h3>
+        <p class="meta">${r.probe.description}</p>
+        <p class="meta">Fixture: <code>${r.probe.fixture}</code></p>
+        <p>Esperado:</p>
+        <pre>${JSON.stringify(r.probe.expected, null, 2)}</pre>
+        <p>Obtenido:</p>
+        <pre>${JSON.stringify({
+          summary: r.result.summary,
+          totals: { findings: r.result.findings.length, rules: r.result.ruleCount },
+          flags: { hasSettings: r.result.hasSettings, hasConflict: r.result.hasConflict }
+        }, null, 2)}</pre>
+      `;
+      return div;
+    }
+
+    document.getElementById('run-all').addEventListener('click', () => {
+      resultsEl.innerHTML = '';
+      const results = PermAuditProbes.map(runProbe);
+      results.forEach(r => resultsEl.appendChild(renderResult(r)));
+      const failed = results.filter(r => !r.pass).length;
+      const summary = document.createElement('p');
+      summary.innerHTML = `<strong>${results.length - failed}/${results.length} sondas pasaron</strong>`;
+      resultsEl.prepend(summary);
+    });
+  </script>
+</body>
+</html>

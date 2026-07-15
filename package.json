@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "echo \"tests ok\""
+    "test": "npm run verify:unit && npm run verify:ci",
+    "verify": "npm run verify:unit && npm run verify:ci",
+    "verify:unit": "node verification/probes/run-unit.mjs",
+    "verify:ci": "node verification/surfaces/ci.mjs",
+    "verify:headless": "node verification/surfaces/headless.mjs",
+    "verify:agent": "node verification/surfaces/agent.mjs",
+    "verify:break-1": "node verification/breaks/run-break-1.mjs",
+    "verify:break-2": "node verification/breaks/run-break-2.mjs",
+    "verify:break-3": "node verification/breaks/naive-verify.mjs",
+    "serve": "npx serve . -p 3456 -s"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "ffmpeg-static": "^5.3.0"
   }
 }
