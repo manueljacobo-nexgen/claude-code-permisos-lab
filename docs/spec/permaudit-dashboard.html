@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PermAudit Dashboard — Spec</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #f6f7f9;
+      --panel: #fff;
+      --border: #e0e0e0;
+      --text: #222;
+      --muted: #666;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
+    header { background: #111; color: #fff; padding: 1.25rem 2rem; }
+    header p { margin: 0.25rem 0 0; color: #aaa; }
+    main { padding: 1.5rem 2rem; display: grid; grid-template-columns: 340px 1fr; gap: 1.5rem; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+    .summary { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+    .card .value { font-size: 2rem; font-weight: 700; }
+    .card .label { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    label { display: block; margin: 0.75rem 0 0.25rem; font-weight: 600; font-size: 0.9rem; }
+    select, textarea, button { width: 100%; font: inherit; }
+    textarea { height: 260px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; padding: 0.5rem; }
+    select, button { padding: 0.5rem; }
+    button { margin-top: 0.75rem; cursor: pointer; }
+    .help { color: var(--muted); font-size: 0.8rem; margin-top: 0.5rem; }
+    h2 { margin-top: 0; font-size: 1.1rem; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { padding: 0.65rem 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; }
+    .CRITICAL { background: #ffebee; color: #b00020; border-left: 4px solid #b00020; }
+    .HIGH { background: #fff3e0; color: #c65100; border-left: 4px solid #c65100; }
+    .MEDIUM { background: #fffde7; color: #f9a825; border-left: 4px solid #f9a825; }
+    .INFO { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+    .manifest { grid-column: 1 / -1; }
+    .manifest pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; }
+    .empty { color: var(--muted); font-style: italic; }
+    footer { grid-column: 1 / -1; color: var(--muted); font-size: 0.8rem; }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PermAudit Dashboard</h1>
+    <p>Spec renderizable: auditoría de permisos de Claude Code con contrato DOM publicado.</p>
+  </header>
+
+  <main id="dashboard" data-verify="permaudit-dashboard">
+    <section class="summary" aria-label="Resumen">
+      <div class="card">
+        <div class="value" id="total-critical" data-total-critical="0">0</div>
+        <div class="label">Critical</div>
+      </div>
+      <div class="card">
+        <div class="value" id="total-high" data-total-high="0">0</div>
+        <div class="label">High</div>
+      </div>
+      <div class="card">
+        <div class="value" id="total-medium" data-total-medium="0">0</div>
+        <div class="label">Medium</div>
+      </div>
+      <div class="card">
+        <div class="value" id="total-info" data-total-info="0">0</div>
+        <div class="label">Info</div>
+      </div>
+      <div class="card">
+        <div class="value" id="total-findings" data-total-findings="0">0</div>
+        <div class="label">Total findings</div>
+      </div>
+      <div class="card">
+        <div class="value" id="rule-count" data-rule-count="0">0</div>
+        <div class="label">Reglas</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Configuración</h2>
+      <label for="fixture-select">Fixture</label>
+      <select id="fixture-select">
+        <option value="clean">clean — config segura</option>
+        <option value="destructiveAllow">destructive-allow — rm en allow</option>
+        <option value="wildcardAllow">wildcard-allow — Bash(*)</option>
+        <option value="conflict">conflict — allow && deny iguales</option>
+        <option value="missingSettings">missing-settings — sin settings.json</option>
+        <option value="empty">empty — listas vacías</option>
+        <option value="invalid">invalid — JSON malformado</option>
+        <option value="limit">limit — más de 50 findings</option>
+      </select>
+
+      <label for="settings-input">JSON de .claude/settings.json</label>
+      <textarea id="settings-input" spellcheck="false"></textarea>
+      <button id="audit-btn">Auditar</button>
+      <p class="help">Cambiar el fixture rellena el editor; pulsar <em>Auditar</em> actualiza el DOM y el manifiesto.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Findings</h2>
+      <ul id="findings" data-findings-list="true"></ul>
+    </section>
+
+    <section class="panel manifest">
+      <h2>Manifiesto de verificación</h2>
+      <pre id="verify-manifest" data-verify-manifest="true"></pre>
+    </section>
+
+    <footer>
+      Contrato DOM: <code>data-verify</code>, <code>data-total-*</code>, <code>data-total-findings</code>, <code>data-rule-count</code>, <code>data-has-settings</code>, <code>data-has-conflict</code>, y cada <code>li[data-severity][data-rule]</code>.
+    </footer>
+  </main>
+
+  <script src="../../app/audit.js"></script>
+  <script src="../../verification/fixtures.js"></script>
+  <script>
+    const dashboard = document.getElementById('dashboard');
+    const fixtureSelect = document.getElementById('fixture-select');
+    const input = document.getElementById('settings-input');
+    const btn = document.getElementById('audit-btn');
+    const findingsEl = document.getElementById('findings');
+    const manifestEl = document.getElementById('verify-manifest');
+
+    function stringify(value) {
+      if (value === null) return 'null';
+      return JSON.stringify(value, null, 2);
+    }
+
+    function loadFixture(name) {
+      const value = PermAuditFixtures[name];
+      if (typeof value === 'string') {
+        input.value = value;
+      } else {
+        input.value = stringify(value);
+      }
+    }
+
+    function setDataAttrs(result) {
+      dashboard.setAttribute('data-verify', 'permaudit-dashboard');
+      dashboard.setAttribute('data-total-critical', String(result.summary.CRITICAL));
+      dashboard.setAttribute('data-total-high', String(result.summary.HIGH));
+      dashboard.setAttribute('data-total-medium', String(result.summary.MEDIUM));
+      dashboard.setAttribute('data-total-info', String(result.summary.INFO));
+      dashboard.setAttribute('data-total-findings', String(result.findings.length));
+      dashboard.setAttribute('data-rule-count', String(result.ruleCount));
+      dashboard.setAttribute('data-has-settings', String(result.hasSettings));
+      dashboard.setAttribute('data-has-conflict', String(result.hasConflict));
+
+      document.getElementById('total-critical').textContent = result.summary.CRITICAL;
+      document.getElementById('total-high').textContent = result.summary.HIGH;
+      document.getElementById('total-medium').textContent = result.summary.MEDIUM;
+      document.getElementById('total-info').textContent = result.summary.INFO;
+      document.getElementById('total-findings').textContent = result.findings.length;
+      document.getElementById('rule-count').textContent = result.ruleCount;
+
+      document.getElementById('total-critical').setAttribute('data-total-critical', String(result.summary.CRITICAL));
+      document.getElementById('total-high').setAttribute('data-total-high', String(result.summary.HIGH));
+      document.getElementById('total-medium').setAttribute('data-total-medium', String(result.summary.MEDIUM));
+      document.getElementById('total-info').setAttribute('data-total-info', String(result.summary.INFO));
+      document.getElementById('total-findings').setAttribute('data-total-findings', String(result.findings.length));
+      document.getElementById('rule-count').setAttribute('data-rule-count', String(result.ruleCount));
+    }
+
+    function render() {
+      let settings = null;
+      let parseError = null;
+      const raw = input.value.trim();
+      if (raw && raw !== 'null') {
+        try {
+          settings = JSON.parse(raw);
+        } catch (e) {
+          parseError = e.message;
+        }
+      }
+
+      let result;
+      if (parseError) {
+        result = {
+          findings: [{
+            severity: 'CRITICAL',
+            rule: 'parse-error',
+            detail: `JSON inválido: ${parseError}`
+          }],
+          summary: { CRITICAL: 1, HIGH: 0, MEDIUM: 0, INFO: 0 },
+          hasSettings: false,
+          ruleCount: 0,
+          hasConflict: false
+        };
+      } else {
+        result = PermAudit.audit(settings);
+      }
+
+      setDataAttrs(result);
+
+      findingsEl.innerHTML = '';
+      if (result.findings.length === 0) {
+        findingsEl.innerHTML = '<li class="empty">No hay findings.</li>';
+      } else {
+        result.findings.forEach(f => {
+          const li = document.createElement('li');
+          li.className = f.severity;
+          li.setAttribute('data-severity', f.severity);
+          li.setAttribute('data-rule', f.rule);
+          li.innerHTML = `<strong>[${f.severity}]</strong> ${f.rule}: ${f.detail}`;
+          findingsEl.appendChild(li);
+        });
+      }
+
+      const manifest = {
+        feature: 'permaudit-dashboard',
+        version: '0.1.0',
+        fixture: fixtureSelect.value,
+        summary: result.summary,
+        totals: {
+          critical: result.summary.CRITICAL,
+          high: result.summary.HIGH,
+          medium: result.summary.MEDIUM,
+          info: result.summary.INFO,
+          findings: result.findings.length,
+          rules: result.ruleCount
+        },
+        flags: {
+          hasSettings: result.hasSettings,
+          hasConflict: result.hasConflict
+        },
+        findings: result.findings,
+        schema: 'permaudit-dashboard-v1'
+      };
+      manifestEl.textContent = JSON.stringify(manifest, null, 2);
+    }
+
+    fixtureSelect.addEventListener('change', () => loadFixture(fixtureSelect.value));
+    btn.addEventListener('click', render);
+
+    loadFixture('clean');
+    render();
+  </script>
+</body>
+</html>

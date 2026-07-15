@@ -1,0 +1,5 @@
+{
+  "allow": ["Bash(*)", "Bash(npm run test)"],
+  "ask": ["Bash(rm *)"],
+  "deny": ["Bash(git push *)", "Edit(package.json)", "Edit(.env)"]
+}

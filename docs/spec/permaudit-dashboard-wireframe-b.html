@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>PermAudit Dashboard — Wireframe B (vertical tarjetas)</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #fff; color: #222; }
+    header { background: #1a237e; color: #fff; padding: 1.5rem; text-align: center; }
+    .summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; padding: 1rem; }
+    .card { border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.2rem; text-align: center; }
+    .editor { padding: 1rem; background: #fafafa; border-top: 1px solid #e0e0e0; }
+    textarea { width: 100%; height: 160px; font-family: monospace; font-size: 0.9rem; }
+    button { display: block; width: 100%; padding: 0.8rem; margin-top: 0.5rem; font-size: 1rem; }
+    ul { list-style: none; padding: 0 1rem; }
+    li { padding: 0.8rem; margin-bottom: 0.5rem; border-radius: 6px; }
+    .CRITICAL { color: #fff; background: #b00020; }
+    .HIGH { color: #fff; background: #c65100; }
+    .MEDIUM { color: #222; background: #fdd835; }
+    .INFO { color: #fff; background: #2e7d32; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PermAudit Dashboard</h1>
+    <p>Wireframe B: resumen en tarjetas grandes, editor abajo, lista sobre fondo blanco.</p>
+  </header>
+
+  <section class="summary" id="summary">
+    <div class="card"><div>CRITICAL</div><strong id="c">0</strong></div>
+    <div class="card"><div>HIGH</div><strong id="h">0</strong></div>
+    <div class="card"><div>MEDIUM</div><strong id="m">0</strong></div>
+    <div class="card"><div>INFO</div><strong id="i">0</strong></div>
+    <div class="card"><div>TOTAL</div><strong id="t">0</strong></div>
+  </section>
+
+  <section class="findings">
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="editor">
+    <h2>Simular configuración</h2>
+    <textarea id="settings-input">{
+  "allow": ["Bash(npm run test)"],
+  "ask": ["Bash(rm *)"],
+  "deny": ["Bash(git push *)", "Edit(package.json)"]
+}</textarea>
+    <button id="audit-btn">Auditar configuración</button>
+  </section>
+
+  <script type="module">
+    import { audit } from '../../app/audit.js';
+
+    const input = document.getElementById('settings-input');
+    const btn = document.getElementById('audit-btn');
+    const findingsEl = document.getElementById('findings');
+
+    function render() {
+      let settings = null;
+      try {
+        settings = JSON.parse(input.value || '{}');
+      } catch (e) {
+        findingsEl.innerHTML = `<li class="CRITICAL">JSON inválido: ${e.message}</li>`;
+        return;
+      }
+      const result = audit(settings);
+      document.getElementById('c').textContent = result.summary.CRITICAL;
+      document.getElementById('h').textContent = result.summary.HIGH;
+      document.getElementById('m').textContent = result.summary.MEDIUM;
+      document.getElementById('i').textContent = result.summary.INFO;
+      document.getElementById('t').textContent = result.findings.length;
+      findingsEl.innerHTML = result.findings.map(f =>
+        `<li class="${f.severity}"><strong>[${f.severity}]</strong> ${f.rule}: ${f.detail}</li>`
+      ).join('');
+    }
+
+    btn.addEventListener('click', render);
+    render();
+  </script>
+</body>
+</html>

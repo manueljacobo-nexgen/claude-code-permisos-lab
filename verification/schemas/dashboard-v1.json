@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "permaudit-dashboard-v1",
+  "title": "PermAudit Dashboard DOM Contract v1",
+  "description": "Esquema de los atributos data-* publicados por el dashboard en el DOM.",
+  "type": "object",
+  "required": [
+    "data-verify",
+    "data-total-critical",
+    "data-total-high",
+    "data-total-medium",
+    "data-total-info",
+    "data-total-findings",
+    "data-rule-count",
+    "data-has-settings",
+    "data-has-conflict"
+  ],
+  "properties": {
+    "data-verify": {
+      "type": "string",
+      "const": "permaudit-dashboard",
+      "description": "Identificador del artefacto verificable."
+    },
+    "data-total-critical": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Cantidad de findings CRITICAL."
+    },
+    "data-total-high": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Cantidad de findings HIGH."
+    },
+    "data-total-medium": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Cantidad de findings MEDIUM."
+    },
+    "data-total-info": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Cantidad de findings INFO."
+    },
+    "data-total-findings": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Total de findings."
+    },
+    "data-rule-count": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "Cantidad total de reglas cargadas."
+    },
+    "data-has-settings": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "description": "Indica si existe settings.json parseable."
+    },
+    "data-has-conflict": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "description": "Indica si hay reglas en allow y deny simultáneamente."
+    }
+  }
+}
