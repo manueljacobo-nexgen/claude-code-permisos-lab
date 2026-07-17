@@ -1,0 +1,22 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  skills-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run skill self-checks
+        run: |
+          set -e
+          for f in .claude/skills/*/test.js .claude/skills/*/*.test.js; do
+            [ -e "$f" ] || continue
+            echo "== $f =="
+            node "$f"
+          done
